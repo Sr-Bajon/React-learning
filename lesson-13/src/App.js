@@ -1,69 +1,49 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 
-class App extends React.Component{
-  constructor(){
-    super();
-    this.state = {a: ''}
-    this.update = this.update;
-  }
+class App extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            increasing: false
+        }
+    }
 
-  update = (e) => {
-    this.setState({
-      a: this.a.value,
-      b: this.refs.b.value,
-      c: ReactDom.findDOMNode(this.c).value,
-      d: this.d.refs.input.value
-    })
-  }
+    update() {
+        ReactDom.render(
+            <App val={this.props.val + 1}/>, document.getElementById('root'));
+    }
 
-  render(){
-    return(
-      <div>
-        <input
-          ref={node => this.a = node}
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.a}
-        <hr />
-        <input
-          ref="b"
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.b}
-        <hr />
-        <Input
-          ref={component => this.c = component}
-          update={this.update.bind(this)}
-          />{this.state.c}
-        <hr />
-        <Input2
-          ref={component => this.d = component}
-          update={this.update.bind(this)}
-          />{this.state.d}
-      </div>
-    );
-  }
-}
+    componentWillReceiveProps(nextProps) {
+        console.log(`componentWillReceiveProps, ${nextProps.val}`);
+        this.setState({
+            increasing: nextProps.val > this.props.val
+        })
+    }
 
-class Input extends React.Component{
-  render(){
-    return <input type="text" onChange={this.props.update}/>
-  }
-}
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log(`shouldComponentUpdate, nextProps=${nextProps.val} nextState={increasing : ${nextState.increasing}}`);
+        console.log(`¿Se actualiza? ${nextProps.val % 5 === 0}`);
+        return nextProps.val % 5 === 0;
+    }
 
-class Input2 extends React.Component {
     render() {
-        return (
-            <div>
-                <input
-                  type="text"
-                  ref="input"
-                  onChange={this.props.update}/>
-            </div>
-        );
+        console.log(this.state.increasing);
+
+        return <button onClick={this.update.bind(this)}>
+            {this.props.val}
+        </button>
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        console.log(`componentDidUpdate, prevProps=${prevProps.val} prevState={increasing : ${prevState.increasing}}`);
+
+        console.log(`prevProps: ${prevProps.val}`);
     }
 }
 
+App.defaultProps = {
+    val: 0
+}
 
 export default App;
