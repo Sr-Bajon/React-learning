@@ -1,69 +1,43 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import 'App.css';
 
 class App extends React.Component{
   constructor(){
     super();
-    this.state = {a: ''}
-    this.update = this.update;
+    this.state = {
+      input: '/* add your jsx here */',
+      output: '',
+      err: ''
+    }
   }
-
-  update = (e) => {
-    this.setState({
-      a: this.a.value,
-      b: this.refs.b.value,
-      c: ReactDom.findDOMNode(this.c).value,
-      d: this.d.refs.input.value
-    })
+  update(e){
+    let code = e.target.value;
+    try{
+      this.setState({
+        output: window.Babel
+          .transform(code, {presets: ['es2015', 'react']})
+          .code,
+          err: ''
+      })
+    }catch(err){
+      this.setState({err: err.message})
+    }
   }
-
   render(){
     return(
       <div>
-        <input
-          ref={node => this.a = node}
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.a}
-        <hr />
-        <input
-          ref="b"
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.b}
-        <hr />
-        <Input
-          ref={component => this.c = component}
-          update={this.update.bind(this)}
-          />{this.state.c}
-        <hr />
-        <Input2
-          ref={component => this.d = component}
-          update={this.update.bind(this)}
-          />{this.state.d}
+        <header>{this.state.err}</header>
+        <div className="container">
+          <textarea
+            onChange={this.update.bind(this)}
+            defaultValue={this.state.input}/>
+            <pre>
+              {this.state.output}
+            </pre>
+        </div>
       </div>
-    );
+    )
   }
 }
-
-class Input extends React.Component{
-  render(){
-    return <input type="text" onChange={this.props.update}/>
-  }
-}
-
-class Input2 extends React.Component {
-    render() {
-        return (
-            <div>
-                <input
-                  type="text"
-                  ref="input"
-                  onChange={this.props.update}/>
-            </div>
-        );
-    }
-}
-
 
 export default App;

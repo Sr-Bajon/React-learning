@@ -1,69 +1,38 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 
-class App extends React.Component{
-  constructor(){
-    super();
-    this.state = {a: ''}
-    this.update = this.update;
-  }
+class App extends React.Component {
+    constructor() {
+        super();
 
-  update = (e) => {
-    this.setState({
-      a: this.a.value,
-      b: this.refs.b.value,
-      c: ReactDom.findDOMNode(this.c).value,
-      d: this.d.refs.input.value
-    })
-  }
+        this.state = {items: []}
+    }
 
-  render(){
-    return(
-      <div>
-        <input
-          ref={node => this.a = node}
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.a}
-        <hr />
-        <input
-          ref="b"
-          type="text"
-          onChange={this.update.bind(this)}
-          />{this.state.b}
-        <hr />
-        <Input
-          ref={component => this.c = component}
-          update={this.update.bind(this)}
-          />{this.state.c}
-        <hr />
-        <Input2
-          ref={component => this.d = component}
-          update={this.update.bind(this)}
-          />{this.state.d}
-      </div>
-    );
-  }
-}
+    componentWillMount() {
+        fetch('http://swapi.co/api/people/?format=json')
+        .then(response => response.json())
+        .then(({results: items}) => this.setState({items}))
+    }
 
-class Input extends React.Component{
-  render(){
-    return <input type="text" onChange={this.props.update}/>
-  }
-}
+    filter(e){
+      this.setState({filter: e.target.value})
+    }
 
-class Input2 extends React.Component {
     render() {
+        let items = this.state.items;
+        if(this.state.filter){
+          items = items.filter(item => item.name.toLowerCase()
+            .includes(this.state.filter.toLowerCase()))
+        }
         return (
             <div>
-                <input
-                  type="text"
-                  ref="input"
-                  onChange={this.props.update}/>
+              <input type="text" onChange={this.filter.bind(this)}/>
+              {items.map(item =>
+                <Person key={item.name} person={item} />)}
             </div>
         );
     }
 }
 
+const Person = (props) => <h4>{props.person.name}</h4>
 
 export default App;
