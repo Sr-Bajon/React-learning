@@ -1,0 +1,19 @@
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.sumacontainer {
+  margin-top: 12px;
+  margin-left: 12px;
+}
+
+.sumacontainer__sumabutton {
+  display: inline;
+}
+
+.sumacontainer__sumalabel {
+  margin-left: 12px;
+  display: inline;
+}
