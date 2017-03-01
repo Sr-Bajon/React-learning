@@ -7,13 +7,15 @@
 .sumacontainer {
   margin-top: 12px;
   margin-left: 12px;
+
+  display: flex;
+  justify-content: space-around;
+  width: 271px;
+  background-color: #669f90;
 }
 
 .sumacontainer__sumabutton {
-  display: inline;
 }
 
 .sumacontainer__sumalabel {
-  margin-left: 12px;
-  display: inline;
 }
