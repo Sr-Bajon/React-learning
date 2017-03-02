@@ -1,106 +1,119 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux'
-import './index.css';
+import { createStore } from 'redux';
 
 /*
-  1. Mock
-    Un boton con un +
-    Un label al lado del boton que muestre un 0
-    Al pulsar el boton que aumente el numero
+ ██████  ██████  ███    ███ ██████   ██████  ███    ██ ███████ ███    ██ ████████ ███████
+██      ██    ██ ████  ████ ██   ██ ██    ██ ████   ██ ██      ████   ██    ██    ██
+██      ██    ██ ██ ████ ██ ██████  ██    ██ ██ ██  ██ █████   ██ ██  ██    ██    █████
+██      ██    ██ ██  ██  ██ ██      ██    ██ ██  ██ ██ ██      ██  ██ ██    ██    ██
+ ██████  ██████  ██      ██ ██       ██████  ██   ████ ███████ ██   ████    ██    ███████
+*/
+
+/*
+  El componente Counter se ha definido para que espere 3 props
+  value : Será el contenido del state, que en este caso no es un objeto sino un valor numerico
+  onIncrement: será una función que despache la acción INCREMENT
+  onDecrement: será una función que despache la acción DECREMENT
  */
 
-/*
-  2. Jerarquia de componentes
-    Boton que aumenta el estado en 1
-    Label que muestra el estado actual
- */
-
-/*
-  3. Versión estatica
-
- */
-
-const SumaButton = () => <button className="sumacontainer__sumabutton">+</button>;
-const SumaLabel = () => <h2 className="sumacontainer__sumalabel">0</h2>;
-const SumaContainer = () => {
-  return (
-    <div className="sumacontainer">
-      <SumaButton />
-      <SumaLabel />
-    </div>
-  );
-};
-
-ReactDOM.render(
-  <SumaContainer />,
-  document.getElementById('root')
-);
-
-/*
-  4. Identifica el estado
-    Necesitamos un estado que guarde el contador
-    Sumabutton lanzará un callback para actualizar el contador
-    SumaLable mostrará el contador
-
-    {
-      counter: 0
+class Counter extends Component {
+  // llama a la acción INCREMENT sólo si el valor del estado es impar
+  incrementIfOdd = () => {
+    if (this.props.value % 2 !== 0) {
+      this.props.onIncrement()
     }
- */
-
-/*
-  5. Definimos las acciones para REDUX
-
-  const COUNTER_ADD = 'COUNTER_ADD'
-  {
-    type: COUNTER_ADD,
-    value: 1
   }
 
- */
+  // llama a la acción INCREMENT con un retraso de un segundo
+  incrementAsync = () => {
+    setTimeout(this.props.onIncrement, 1000)
+  }
 
- const COUNTER_ADD = 'COUNTER_ADD';
- function counterAdd(value) {
-   return {
-     type: COUNTER_ADD,
-     value
-   }
- }
+  render() {
+    // this.props es un objeto con las claves value, onIncrement, onDecrement
+    const { value, onIncrement, onDecrement } = this.props
+    return (
+      <p>
+        Clicked: {value} times
+        {' '}
+        <button onClick={onIncrement}>
+          +
+        </button>
+        {' '}
+        <button onClick={onDecrement}>
+          -
+        </button>
+        {' '}
+        <button onClick={this.incrementIfOdd}>
+          Increment if odd
+        </button>
+        {' '}
+        <button onClick={this.incrementAsync}>
+          Increment async
+        </button>
+      </p>
+    )
+  }
+}
 
-// la llamaremos así:  dispatch(counterAdd(value))
+export default Counter
 
 
 /*
-  6. Define los reducers
-    Y creamos un store con ellos
+██████  ███████ ██████  ██    ██  ██████ ███████ ██████
+██   ██ ██      ██   ██ ██    ██ ██      ██      ██   ██
+██████  █████   ██   ██ ██    ██ ██      █████   ██████
+██   ██ ██      ██   ██ ██    ██ ██      ██      ██   ██
+██   ██ ███████ ██████   ██████   ██████ ███████ ██   ██
+*/
+
+const counter = (state = 0, action) => {
+  return {
+    INCREMENT : (()=>state + 1)(),
+    DECREMENT: (()=>state - 1)()
+  }[action.type] || state;
+}
+
+/*
+███████ ████████  ██████  ██████  ███████
+██         ██    ██    ██ ██   ██ ██
+███████    ██    ██    ██ ██████  █████
+     ██    ██    ██    ██ ██   ██ ██
+███████    ██     ██████  ██   ██ ███████
+*/
+
+const store = createStore(counter)
+const rootEl = document.getElementById('root')
+
+
+/*
+██████  ███████ ███    ██ ██████  ███████ ██████
+██   ██ ██      ████   ██ ██   ██ ██      ██   ██
+██████  █████   ██ ██  ██ ██   ██ █████   ██████
+██   ██ ██      ██  ██ ██ ██   ██ ██      ██   ██
+██   ██ ███████ ██   ████ ██████  ███████ ██   ██
+*/
+
+/*
+  Renderizamos el componente Counter y le pasamos los props que necesita
+  value={store.getState()}  En este caso se obtiene el estado completo pq el
+    state no es un objeto, si fuera un objeto se obtendría la clave necesaria
+    por ejemplo store.getState.counter
+  onIncrement y onDecrement despachan cada uno la acción necesaria
  */
+const render = () => ReactDOM.render(
+  <Counter
+    value={store.getState()}
+    onIncrement={() => store.dispatch({ type: 'INCREMENT' })}
+    onDecrement={() => store.dispatch({ type: 'DECREMENT' })}
+  />,
+  rootEl
+)
 
- const initialState = {
-   counter: 0
- }
+// llamamos a render para renderizar el componente
+render();
 
- function todoApp(state = initialState, action) {
-   return ({
-     COUNTER_ADD: ()=>{
-       return Object.assign({}, state, {
-         counter: action.value + state.counter
-       })
-     }
-   })[action.type]() || state;
-
-  //  switch (action.type) {
-  //    case COUNTER_ADD:
-  //      return Object.assign({}, state, {
-  //        counter: action.value + state.counter
-  //      })
-  //    default:
-  //      return state
-  //  }
- }
-
-
-let store = createStore(todoApp);
-
-let unsubscribe = store.subscribe(() =>
-  console.log(store.getState())
-);
+// subscribe llamará a la función pasada como argumento cada vez que cambie el
+// state
+store.subscribe(render)
